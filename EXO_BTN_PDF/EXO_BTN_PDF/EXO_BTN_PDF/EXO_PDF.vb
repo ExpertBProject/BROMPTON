@@ -26,7 +26,7 @@ Public Class EXO_PDF
                 objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("PATH_PDF", sPath & "\08.Historico\")
             End If
             If Not objGlobal.funcionesUI.refDi.OGEN.existeVariable("F_PEDIDO") Then
-                objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("F_PEDIDO", "RDR10007")
+                objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("F_PEDIDO", "RDR20012")
             End If
             If Not objGlobal.funcionesUI.refDi.OGEN.existeVariable("F_FACTURA") Then
                 objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("F_FACTURA", "INV20018")
@@ -212,6 +212,7 @@ Public Class EXO_PDF
                 If oDataTable IsNot Nothing Then
                     Try
                         oForm.DataSources.UserDataSources.Item("UDDP").Value = oDataTable.GetValue("DocEntry", 0).ToString
+                        oForm.DataSources.UserDataSources.Item("UDNDP").Value = oDataTable.GetValue("DocNum", 0).ToString
                         'CType(oForm.Items.Item("DIC").Specific, SAPbouiCOM.EditText).Value = oDataTable.GetValue("CardCode", 0).ToString
                     Catch ex As Exception
                         CType(oForm.Items.Item("txtPD").Specific, SAPbouiCOM.EditText).Value = oDataTable.GetValue("DocEntry", 0).ToString
@@ -222,6 +223,7 @@ Public Class EXO_PDF
                 If oDataTable IsNot Nothing Then
                     Try
                         oForm.DataSources.UserDataSources.Item("UDHP").Value = oDataTable.GetValue("DocEntry", 0).ToString
+                        oForm.DataSources.UserDataSources.Item("UDNHP").Value = oDataTable.GetValue("DocNum", 0).ToString
                     Catch ex As Exception
                         CType(oForm.Items.Item("txtPH").Specific, SAPbouiCOM.EditText).Value = oDataTable.GetValue("DocEntry", 0).ToString
                     End Try
@@ -231,7 +233,7 @@ Public Class EXO_PDF
                 If oDataTable IsNot Nothing Then
                     Try
                         oForm.DataSources.UserDataSources.Item("UDDF").Value = oDataTable.GetValue("DocEntry", 0).ToString
-                        'CType(oForm.Items.Item("DIC").Specific, SAPbouiCOM.EditText).Value = oDataTable.GetValue("CardCode", 0).ToString
+                        oForm.DataSources.UserDataSources.Item("UDNFD").Value = oDataTable.GetValue("DocNum", 0).ToString
                     Catch ex As Exception
                         CType(oForm.Items.Item("txtFD").Specific, SAPbouiCOM.EditText).Value = oDataTable.GetValue("DocEntry", 0).ToString
                     End Try
@@ -241,6 +243,7 @@ Public Class EXO_PDF
                 If oDataTable IsNot Nothing Then
                     Try
                         oForm.DataSources.UserDataSources.Item("UDHF").Value = oDataTable.GetValue("DocEntry", 0).ToString
+                        oForm.DataSources.UserDataSources.Item("UDNFH").Value = oDataTable.GetValue("DocNum", 0).ToString
                     Catch ex As Exception
                         CType(oForm.Items.Item("txtFH").Specific, SAPbouiCOM.EditText).Value = oDataTable.GetValue("DocEntry", 0).ToString
                     End Try
@@ -308,7 +311,7 @@ Public Class EXO_PDF
 
 
                             sOutFileName = sPath & "Factura.rpt"
-                            objGlobal.SBOApp.StatusBar.SetText("(EXO) - Exportando RPT de PEDIDO", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
+                            objGlobal.SBOApp.StatusBar.SetText("(EXO) - Exportando RPT de FACTURA", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
                             GetCrystalReportFile(objGlobal.compañia, objGlobal.funcionesUI.refDi.OGEN.valorVariable("F_FACTURA"), sOutFileName)
                             objGlobal.SBOApp.StatusBar.SetText("(EXO) - Utilizando formato: " & sOutFileName, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
                             'generar PDF 

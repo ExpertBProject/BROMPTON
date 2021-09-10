@@ -6,7 +6,7 @@ Imports SAPbobsCOM
 
 Public Class Procesos
 
-#Region "Seguimientos logísticos"
+#Region "Pedidos al Proveedor"
     Public Shared Sub Pedidos_Proveedor(ByRef oLog As EXO_Log.EXO_Log)
         Dim sError As String = ""
         Dim sPath As String = My.Application.Info.DirectoryPath.ToString : Dim oFiles() As String = Nothing
@@ -149,15 +149,20 @@ Public Class Procesos
         Dim htmbody As New System.Text.StringBuilder()
         Enviarmail = False
         Dim sMail As String = Conexiones.Datos_Confi("DATOS_MAIL", "MAIL")
+        Dim sCMail As String = Conexiones.Datos_Confi("DATOS_MAIL", "CMAIL")
         Dim sMail_Usuario As String = Conexiones.Datos_Confi("DATOS_MAIL", "USUARIO")
         Dim sMail_PS As String = Conexiones.Datos_Confi("DATOS_MAIL", "PS")
         Dim sMail_SMTP As String = Conexiones.Datos_Confi("DATOS_MAIL", "SMTP")
         Dim sMail_PORT As String = Conexiones.Datos_Confi("DATOS_MAIL", "PORT")
-
+        Dim oCC As New Net.Mail.MailAddressCollection
         correo.From = New System.Net.Mail.MailAddress(sMail, "Brompton House")
+        If sCMail.Trim <> "" Then
+            correo.CC.Add(sCMail.Trim)
+        End If
+
         If dirmail <> "" Then
             'dirmail = "omartinez@expertone.es"
-            correo.To.Add(dirmail)
+        correo.To.Add(dirmail)
         End If
         correo.Subject = "Nuevo Pedido Procesado"
 

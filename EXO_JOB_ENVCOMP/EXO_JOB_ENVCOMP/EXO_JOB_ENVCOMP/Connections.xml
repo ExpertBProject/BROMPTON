@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0"?>
 <Connection>
   <ACTUALIZAR CAMPOS="N"/>
-  <DATOS_MAIL MAIL="export@bromptonhouse.co.uk" SMTP="mail2.cloudari.com"  PORT="587" USUARIO="export@bromptonhouse.co.uk" PS="vKmmvWBi@7F9"/>
+  <DATOS_MAIL MAIL="export@bromptonhouse.co.uk" SMTP="mail2.cloudari.com"  PORT="587" USUARIO="export@bromptonhouse.co.uk" PS="vKmmvWBi@7F9" CMAIL="ignacio@bromptonhouse.co.uk"/>
   <SQL Server="VMTIMAC" Db="BH00" DbUser="sa" DbPwd="Expertone.1" Empresa="BH00"/>
   <DI SQLV="2012" Server="VMTIMAC" LicenseServer="VMTIMAC:30000" SLDAddress="https://VMTIMAC:30010/" UserName="manager" Password="ecinsa12" DbUserName="sa" DbPassword="Expertone.1"  CompanyDB="BH00"/>
 </Connection>

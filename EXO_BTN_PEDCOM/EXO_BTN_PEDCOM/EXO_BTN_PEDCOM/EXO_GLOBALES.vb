@@ -1,4 +1,6 @@
 ﻿Imports SAPbouiCOM
+Imports CrystalDecisions.CrystalReports.Engine
+Imports System.IO
 Public Class EXO_GLOBALES
 #Region "Funciones formateos datos"
     Public Shared Function TextToDbl(ByRef oObjGlobal As EXO_UIAPI.EXO_UIAPI, ByVal sValor As String) As Double
@@ -201,6 +203,148 @@ Public Class EXO_GLOBALES
             retorno = " " & retorno
         End If
         Return retorno
+    End Function
+#End Region
+#Region "REPORTS"
+    Public Shared Sub GetCrystalReportFile(ByVal oCompany As SAPbobsCOM.Company, ByVal sFormatoImp As String, ByVal sOutFileName As String)
+        Dim oBlobParams As SAPbobsCOM.BlobParams = Nothing
+        Dim oKeySegment As SAPbobsCOM.BlobTableKeySegment = Nothing
+        Dim oBlob As SAPbobsCOM.Blob = Nothing
+        Dim sContent As String = ""
+        Dim obuff() As Byte = Nothing
+
+        Try
+            oBlobParams = CType(oCompany.GetCompanyService().GetDataInterface(SAPbobsCOM.CompanyServiceDataInterfaces.csdiBlobParams), SAPbobsCOM.BlobParams)
+
+            oBlobParams.Table = "RDOC"
+            oBlobParams.Field = "Template"
+
+            oKeySegment = oBlobParams.BlobTableKeySegments.Add()
+            oKeySegment.Name = "DocCode"
+
+            oKeySegment.Value = sFormatoImp
+            oBlob = oCompany.GetCompanyService().GetBlob(oBlobParams)
+            sContent = oBlob.Content
+
+            obuff = Convert.FromBase64String(sContent)
+
+            Using oFile As New System.IO.FileStream(sOutFileName, System.IO.FileMode.Create)
+                oFile.Write(obuff, 0, obuff.Length)
+
+                oFile.Close()
+            End Using
+
+        Catch exCOM As System.Runtime.InteropServices.COMException
+            Throw exCOM
+        Catch ex As Exception
+            Throw ex
+        Finally
+            EXO_CleanCOM.CLiberaCOM.liberaCOM(CType(oBlobParams, Object))
+            EXO_CleanCOM.CLiberaCOM.liberaCOM(CType(oKeySegment, Object))
+            EXO_CleanCOM.CLiberaCOM.liberaCOM(CType(oBlob, Object))
+        End Try
+    End Sub
+    Public Shared Function GenerarCrystal(ByVal oobjglobal As EXO_UIAPI.EXO_UIAPI, ByVal strRutaInforme As String, ByVal sFileCrystal As String, ByVal sPath As String, sDocEntry As String, ByVal sDocNum As String, ByVal sDocDate As String) As String
+        Dim oCRReport As ReportDocument = Nothing
+        'objGlobal.SBOApp.StatusBar.SetText("(EXO) - Fecha:" & sDocDate & " - .", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning)
+        Dim dFecha As Date = sDocDate
+        Dim sFilePDF As String = sDocNum & "_" & dFecha.Year.ToString("0000") & dFecha.Month.ToString("00") & dFecha.Day.ToString("00")
+
+
+        'Guardar ficheros 
+        If Not System.IO.Directory.Exists(sPath) Then
+            System.IO.Directory.CreateDirectory(sPath)
+        End If
+        Try
+            oobjglobal.SBOApp.StatusBar.SetText("(EXO) - Preparando fichero - " & sFilePDF & " - .", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning)
+            'generar el rpt
+            GenerarCrystal = ""
+            'objGlobal.SBOApp.StatusBar.SetText("(EXO) - 1", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning)
+            oCRReport = New ReportDocument
+            oobjglobal.SBOApp.StatusBar.SetText("(EXO) - Cargando Crystal - " & strRutaInforme & sFileCrystal & " - .", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning)
+            oCRReport.Load(strRutaInforme & sFileCrystal)
+
+            oCRReport.SetParameterValue("DocKey@", sDocEntry)
+
+            'PONER USUARIO Y CONTRASEÑA
+
+            Dim conrepor As CrystalDecisions.Shared.DataSourceConnections = oCRReport.DataSourceConnections
+            conrepor(0).SetConnection(oobjglobal.compañia.Server, oobjglobal.compañia.CompanyDB, oobjglobal.refDi.SQL.usuarioSQL, oobjglobal.refDi.SQL.claveSQL)
+            'objGlobal.SBOApp.StatusBar.SetText("(EXO) - 2", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning)
+            sFilePDF = sPath & sFilePDF & ".pdf"
+            oCRReport.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.PortableDocFormat, sFilePDF)
+            oobjglobal.SBOApp.StatusBar.SetText("(EXO) - Pdf creado : " & sFilePDF, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
+
+            GenerarCrystal = sFilePDF
+        Catch ex As Exception
+            Throw ex
+        Finally
+            oCRReport.Close()
+            oCRReport.Dispose()
+        End Try
+    End Function
+    Public Shared Function Enviarmail(ByVal oobjglobal As EXO_UIAPI.EXO_UIAPI, sCuerpo As String, sRutahtml As String, dirmail As String, sProveedor As String, sProveedorNom As String, sFichero As String, sficheroCompra As String) As Boolean
+        Dim correo As New System.Net.Mail.MailMessage()
+        Dim adjunto As System.Net.Mail.Attachment
+        Dim StrFirma As String = ""
+        Dim htmbody As New System.Text.StringBuilder()
+        Enviarmail = False
+        Dim sMail As String = oobjglobal.funcionesUI.refDi.OGEN.valorVariable("COM_Mail")
+        Dim sCMail As String = oobjglobal.funcionesUI.refDi.OGEN.valorVariable("COM_CMail")
+        Dim sMail_Usuario As String = oobjglobal.funcionesUI.refDi.OGEN.valorVariable("COM_US")
+        Dim sMail_PS As String = oobjglobal.funcionesUI.refDi.OGEN.valorVariable("COM_PS")
+        Dim sMail_SMTP As String = oobjglobal.funcionesUI.refDi.OGEN.valorVariable("COM_SMTP")
+        Dim sMail_PORT As String = oobjglobal.funcionesUI.refDi.OGEN.valorVariable("COM_PORT")
+        Dim oCC As New Net.Mail.MailAddressCollection
+        correo.From = New System.Net.Mail.MailAddress(sMail, "Brompton House")
+        If sCMail.Trim <> "" Then
+            correo.CC.Add(sCMail.Trim)
+        End If
+
+        If dirmail <> "" Then
+            'dirmail = "omartinez@expertone.es"
+            correo.To.Add(dirmail)
+        End If
+        correo.Subject = "Nuevo Pedido Procesado"
+
+        If sFichero <> "" Then
+            adjunto = New System.Net.Mail.Attachment(sFichero)
+            correo.Attachments.Add(adjunto)
+        End If
+
+        If sficheroCompra <> "" Then
+            adjunto = New System.Net.Mail.Attachment(sficheroCompra)
+            correo.Attachments.Add(adjunto)
+        End If
+
+
+        Dim FicheroCab As String = ""
+
+        correo.Body = sCuerpo
+        correo.IsBodyHtml = True
+        correo.Priority = System.Net.Mail.MailPriority.Normal
+
+        Dim smtp As New System.Net.Mail.SmtpClient
+        smtp.Host = sMail_SMTP
+        smtp.Port = sMail_PORT
+        smtp.UseDefaultCredentials = True
+        smtp.Credentials = New System.Net.NetworkCredential(sMail_Usuario, sMail_PS)
+        smtp.EnableSsl = True
+
+        'smtp.DeliveryMethod = Net.Mail.SmtpDeliveryMethod.Network
+
+        Try
+            smtp.Send(correo)
+
+            correo.Dispose()
+            oobjglobal.SBOApp.StatusBar.SetText("Correo enviado a " & sProveedorNom & " con mail: " & dirmail & ", adjuntando fichero:" & sFichero, EXO_Log.EXO_Log.Tipo.informacion)
+            Enviarmail = True
+        Catch ex As Exception
+            oobjglobal.SBOApp.StatusBar.SetText("No se ha podido envial mail a " & sProveedorNom & " con mail: " & dirmail & ", adjuntando fichero:" & sFichero & ". Error: " & ex.Message, EXO_Log.EXO_Log.Tipo.informacion)
+            Enviarmail = False
+        Finally
+        End Try
+        Return True
     End Function
 #End Region
 End Class

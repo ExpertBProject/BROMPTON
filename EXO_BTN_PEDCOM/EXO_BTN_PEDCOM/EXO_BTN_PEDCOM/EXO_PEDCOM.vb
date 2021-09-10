@@ -22,6 +22,30 @@ Public Class EXO_PEDCOM
             If Not objGlobal.funcionesUI.refDi.OGEN.existeVariable("COM_ALM") Then
                 objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("COM_ALM", "01.FW")
             End If
+            If Not objGlobal.funcionesUI.refDi.OGEN.existeVariable("COM_Mail") Then
+                objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("COM_Mail", "export@bromptonhouse.co.uk")
+            End If
+            If Not objGlobal.funcionesUI.refDi.OGEN.existeVariable("COM_US") Then
+                objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("COM_US", "export@bromptonhouse.co.uk")
+            End If
+            If Not objGlobal.funcionesUI.refDi.OGEN.existeVariable("COM_PS") Then
+                objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("COM_PS", "vKmmvWBi@7F9")
+            End If
+            If Not objGlobal.funcionesUI.refDi.OGEN.existeVariable("COM_SMTP") Then
+                objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("COM_SMTP", "mail2.cloudari.com")
+            End If
+            If Not objGlobal.funcionesUI.refDi.OGEN.existeVariable("COM_PORT") Then
+                objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("COM_PORT", "587")
+            End If
+            If Not objGlobal.funcionesUI.refDi.OGEN.existeVariable("COM_CMail") Then
+                objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("COM_CMail", "ignacio@bromptonhouse.co.uk")
+            End If
+            If Not objGlobal.funcionesUI.refDi.OGEN.existeVariable("F_PED_VENTA") Then
+                objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("F_PED_VENTA", "RDR20011")
+            End If
+            If Not objGlobal.funcionesUI.refDi.OGEN.existeVariable("F_PED_COMPRA") Then
+                objGlobal.funcionesUI.refDi.OGEN.fijarValorVariable("F_PED_COMPRA", "POR20006")
+            End If
         End If
     End Sub
     Public Overrides Function filtros() As EventFilters
@@ -159,6 +183,10 @@ Public Class EXO_PEDCOM
         Dim oDoc As SAPbobsCOM.Documents = Nothing
         Dim sDocEntry As String = "" : Dim sDocNum As String = ""
         Dim sMensaje As String = "" : Dim sErrorDes As String = ""
+        Dim sSQL As String = "" : Dim oDtProveedores As System.Data.DataTable = New System.Data.DataTable
+        Dim sPath As String = "" : Dim sOutFileName As String = ""
+        Dim oRs As SAPbobsCOM.Recordset = CType(objGlobal.compañia.GetBusinessObject(SAPbobsCOM.BoObjectTypes.BoRecordset), SAPbobsCOM.Recordset)
+        Dim sRutaFicheroPdfVenta As String = "" : Dim sRutaFicheroPdfCompra As String = ""
         Try
             oForm = objGlobal.SBOApp.Forms.Item(pVal.FormUID)
 
@@ -223,7 +251,104 @@ Public Class EXO_PEDCOM
                     Else
                         objGlobal.SBOApp.StatusBar.SetText("(EXO) - Rellene todos los datos por favor.", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning)
                     End If
+                Case "btnENV"
+#Region "Enviar Docs. a proveedor transportista"
+                    If oForm.DataSources.UserDataSources.Item("UDPED").Value <> "" Then
+                        sSQL = "SELECT T1.""DocEntry"", T4.""CardCode"", T4.""CardName"", T5.""E_MailL"" ""Email"" "
+                        sSQL &= " From ""OPOR"" T1 "
+                        sSQL &= " INNER JOIN ""OCRD"" T4 ON T1.""CardCode""= T4.""CardCode"" "
+                        sSQL &= " INNER JOIN  ""OCPR"" T5 On  T4.""CardCode""= T5.""CardCode"" And T4.""CntctPrsn""= T5.""Name""  "
+                        sSQL &= " WHERE T1.""DocEntry""='" & oForm.DataSources.UserDataSources.Item("UDPED").Value & "' "
+                        sSQL &= " Order by  T1.""DocEntry"", T4.""CardCode"" "
 
+                        oDtProveedores = objGlobal.refDi.SQL.sqlComoDataTable(sSQL)
+                        If oDtProveedores.Rows.Count > 0 Then
+                            sPath = objGlobal.refDi.OGEN.pathGeneral & "\08.Historico\"
+#Region "Exportar el pedido de venta"
+                            sOutFileName = sPath & "Pedido_Venta.rpt"
+                            objGlobal.SBOApp.StatusBar.SetText("(EXO) - Exportando RPT de PEDIDO VENTA", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
+                            EXO_GLOBALES.GetCrystalReportFile(objGlobal.compañia, objGlobal.funcionesUI.refDi.OGEN.valorVariable("F_PED_VENTA"), sOutFileName)
+                            objGlobal.SBOApp.StatusBar.SetText("(EXO) - Utilizando formato: " & sOutFileName, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
+                            'generar PDF 
+                            sSQL = "SELECT ""DocEntry"",""DocNum"", ""DocDate"" FROM ""ORDR"" WHERE ""DocEntry""=" & _sDocEntryVenta
+                            oRs.DoQuery(sSQL)
+                            For i = 0 To oRs.RecordCount - 1
+                                sRutaFicheroPdfVenta = sPath
+                                If Not System.IO.Directory.Exists(sPath) Then
+                                    System.IO.Directory.CreateDirectory(sPath)
+                                End If
+                                objGlobal.SBOApp.StatusBar.SetText("(EXO) - Pedido de Venta: " & oRs.Fields.Item("DocNum").Value.ToString, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
+                                sRutaFicheroPdfVenta = EXO_GLOBALES.GenerarCrystal(objGlobal, sPath, "Pedido_Venta.rpt", sRutaFicheroPdfVenta, oRs.Fields.Item("DocEntry").Value.ToString, oRs.Fields.Item("DocNum").Value.ToString, oRs.Fields.Item("DocDate").Value.ToString)
+                                oRs.MoveNext()
+                            Next
+#End Region
+#Region "Exportar Formato pedido de compra"
+                            sOutFileName = sPath & "Pedido_Compra.rpt"
+                            objGlobal.SBOApp.StatusBar.SetText("(EXO) - Exportando RPT de PEDIDO COMPRA", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
+                            EXO_GLOBALES.GetCrystalReportFile(objGlobal.compañia, objGlobal.funcionesUI.refDi.OGEN.valorVariable("F_PED_COMPRA"), sOutFileName)
+                            objGlobal.SBOApp.StatusBar.SetText("(EXO) - Utilizando formato: " & sOutFileName, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
+#End Region
+                            For i As Integer = 0 To oDtProveedores.Rows.Count - 1
+#Region "Generamos PDF Compra"
+                                'generar PDF 
+                                sRutaFicheroPdfCompra = sPath
+                                If Not System.IO.Directory.Exists(sPath) Then
+                                    System.IO.Directory.CreateDirectory(sPath)
+                                End If
+                                objGlobal.SBOApp.StatusBar.SetText("(EXO) - Pedido de compra: " & oForm.DataSources.UserDataSources.Item("UDNPED").Value, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
+                                sRutaFicheroPdfCompra = EXO_GLOBALES.GenerarCrystal(objGlobal, sPath, "Pedido_Compra.rpt", sRutaFicheroPdfVenta, oForm.DataSources.UserDataSources.Item("UDPED").Value, oForm.DataSources.UserDataSources.Item("UDNPED").Value, oForm.DataSources.UserDataSources.Item("UDFECH").Value)
+
+#End Region
+#Region "Enviamos Mail"
+                                'Como se ha generado el crystal, procedemos a su envío 
+                                Dim cuerpo As String = objGlobal.leerEmbebido(Me.GetType(), "mail.htm")
+                                EXO_GLOBALES.Enviarmail(objGlobal, cuerpo, sPath & "\02.HTML\", oDtProveedores.Rows.Item(i).Item("Email").ToString,
+                                   oDtProveedores.Rows.Item(i).Item("CardCode").ToString, oDtProveedores.Rows.Item(i).Item("CardName").ToString, sRutaFicheroPdfVenta, sRutaFicheroPdfCompra)
+#End Region
+#Region "Borramos los ficheros de documentos"
+                                If Not System.IO.File.Exists(sRutaFicheroPdfVenta) Then
+                                    Try
+                                        System.IO.File.Delete(sRutaFicheroPdfVenta)
+                                    Catch ex As Exception
+
+                                    End Try
+                                End If
+                                If Not System.IO.File.Exists(sRutaFicheroPdfCompra) Then
+                                    Try
+                                        System.IO.File.Delete(sRutaFicheroPdfCompra)
+                                    Catch ex As Exception
+
+                                    End Try
+                                End If
+#End Region
+#Region "Actualizar a enviado"
+                                'Actualizamos el documento a enviado
+                                sSQL = "UPDATE ""ORDR"" "
+                                sSQL &= " SET ""U_EXO_EMAIL""='Y' "
+                                sSQL &= " WHERE ""DocEntry""='" & oDtProveedores.Rows.Item(i).Item("DocEntry").ToString & "' "
+                                objGlobal.refDi.SQL.sqlStringB1(sSQL)
+                                objGlobal.SBOApp.StatusBar.SetText(" Se actualiza el Pedido de compra Nº" & oDtProveedores.Rows.Item(i).Item("DocEntry").ToString & " indicando Enviado.", SAPbouiCOM.BoStatusBarMessageType.smt_Success)
+#End Region
+
+                            Next
+#Region "Borramos los ficheros de formatos"
+                            If Not System.IO.File.Exists(sPath & "Pedido_Venta.rpt") Then
+                                System.IO.File.Delete(sPath & "Pedido_Venta.rpt")
+                            End If
+
+                            If Not System.IO.File.Exists(sPath & "Pedido_Compra.rpt") Then
+                                System.IO.File.Delete(sPath & "Pedido_Compra.rpt")
+                            End If
+#End Region
+                        Else
+                            objGlobal.SBOApp.StatusBar.SetText("(EXO) - No se encuentra Contacto para enviar Mail. Lo siento, deberá hacerlo manualmente.", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning)
+                            objGlobal.SBOApp.MessageBox("No se encuentra Contacto para enviar Mail. Lo siento, deberá hacerlo manualmente.")
+                        End If
+                    Else
+                            objGlobal.SBOApp.StatusBar.SetText("(EXO) - No se ha generado el pedido de compra. No puede enviar el documento.", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning)
+                        objGlobal.SBOApp.MessageBox("No se ha generado el pedido de compra. No puede enviar el documento.")
+                    End If
+#End Region
             End Select
 
             EventHandler_ItemPressed_After = True
@@ -234,6 +359,7 @@ Public Class EXO_PEDCOM
             Throw ex
         Finally
             EXO_CleanCOM.CLiberaCOM.liberaCOM(CType(oForm, Object))
+            EXO_CleanCOM.CLiberaCOM.liberaCOM(CType(oRs, Object))
         End Try
     End Function
 End Class
