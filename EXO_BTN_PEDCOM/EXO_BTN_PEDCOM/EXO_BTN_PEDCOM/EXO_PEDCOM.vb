@@ -181,6 +181,7 @@ Public Class EXO_PEDCOM
         Dim oForm As SAPbouiCOM.Form = Nothing
         EventHandler_ItemPressed_After = False
         Dim oDoc As SAPbobsCOM.Documents = Nothing
+        Dim oDocVenta As SAPbobsCOM.Documents = Nothing
         Dim sDocEntry As String = "" : Dim sDocNum As String = ""
         Dim sMensaje As String = "" : Dim sErrorDes As String = ""
         Dim sSQL As String = "" : Dim oDtProveedores As System.Data.DataTable = New System.Data.DataTable
@@ -216,35 +217,39 @@ Public Class EXO_PEDCOM
                                 objGlobal.SBOApp.StatusBar.SetText(sErrorDes, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error)
                                 objGlobal.SBOApp.MessageBox(sErrorDes)
                             Else
-                                sDocEntry = objGlobal.compañia.GetNewObjectKey() 'Recoge el último documento creado
+                                sDocEntry = objGlobal.refDi.compañia.GetNewObjectKey() 'Recoge el último documento creado
                                 'Buscamos el documento para crear un mensaje
                                 sDocNum = objGlobal.refDi.SQL.sqlStringB1("SELECT ""DocNum"" FROM  ""OPOR""  WHERE ""DocEntry""=" & sDocEntry)
                                 oForm.DataSources.UserDataSources.Item("UDPED").Value = sDocEntry
                                 oForm.DataSources.UserDataSources.Item("UDNPED").Value = sDocNum
-#Region "Asignación del documento como referencia"
-                                oDoc = CType(objGlobal.compañia.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oOrders), SAPbobsCOM.Documents)
-                                oDoc.GetByKey(_sDocEntryVenta)
-                                Dim iDoc As Integer = objGlobal.refDi.SQL.sqlNumericaB1("SELECT COUNT(""RefDocNum"") FROM ""RDR21"" Where ""DocEntry""=" & _sDocEntryVenta)
-                                If iDoc > 0 Then
-                                    oDoc.DocumentReferences.Add()
-                                End If
-                                oDoc.DocumentReferences.ReferencedObjectType = SAPbobsCOM.ReferencedObjectTypeEnum.rot_PurchaseOrder
-                                oDoc.DocumentReferences.ReferencedDocEntry = sDocEntry
-                                oDoc.OpeningRemarks = oForm.DataSources.UserDataSources.Item("UDCOM").Value.ToString.Trim
-                                If oDoc.Update() <> 0 Then
-                                    sErrorDes = objGlobal.compañia.GetLastErrorCode & " / " & objGlobal.compañia.GetLastErrorDescription
-                                    objGlobal.SBOApp.StatusBar.SetText(sErrorDes, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error)
-                                    objGlobal.SBOApp.MessageBox(sErrorDes)
-                                Else
-                                    sMensaje = "(EXO) - Se ha actualizado el pedido de venta con el documento de referencia"
-                                    objGlobal.SBOApp.StatusBar.SetText(sMensaje, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
-                                    objGlobal.SBOApp.MessageBox(sMensaje)
-                                End If
 
-#End Region
+
                                 sMensaje = "(EXO) - Ha sido creado el pedido de compras Nº" & sDocNum
                                 objGlobal.SBOApp.StatusBar.SetText(sMensaje, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
                                 objGlobal.SBOApp.MessageBox(sMensaje)
+#Region "Asignación del documento como referencia"
+                                '
+                                'oDocVenta = CType(objGlobal.compañia.GetBusinessObject(SAPbobsCOM.BoObjectTypes.oOrders), SAPbobsCOM.Documents)
+                                'oDocVenta.GetByKey(_sDocEntryVenta)
+                                'Dim iDoc As Integer = objGlobal.refDi.SQL.sqlNumericaB1("SELECT COUNT(""RefDocNum"") FROM ""RDR21"" Where ""DocEntry""=" & _sDocEntryVenta)
+                                'If iDoc > 0 Then
+                                '    oDoc.DocumentReferences.Add()
+                                'End If
+                                'objGlobal.SBOApp.StatusBar.SetText("(EXO) - Se va a Referencia el documento " & sDocNum & " a Docentry " & _sDocEntryVenta, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning)
+                                'oDocVenta.DocumentReferences.ReferencedObjectType = SAPbobsCOM.ReferencedObjectTypeEnum.rot_PurchaseOrder
+                                'oDocVenta.DocumentReferences.ReferencedDocEntry = sDocEntry
+                                'oDocVenta.OpeningRemarks = oForm.DataSources.UserDataSources.Item("UDCOM").Value.ToString.Trim
+                                'If oDocVenta.Update() <> 0 Then
+                                '    sErrorDes = objGlobal.compañia.GetLastErrorCode & " / " & objGlobal.compañia.GetLastErrorDescription
+                                '    objGlobal.SBOApp.StatusBar.SetText(sErrorDes, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Error)
+                                '    objGlobal.SBOApp.MessageBox(sErrorDes)
+                                'Else
+                                '    sMensaje = "(EXO) - Se ha actualizado el pedido de venta con el documento de referencia"
+                                '    objGlobal.SBOApp.StatusBar.SetText(sMensaje, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
+                                '    objGlobal.SBOApp.MessageBox(sMensaje)
+                                'End If
+
+#End Region
                             End If
 #End Region
                         End If
@@ -296,7 +301,7 @@ Public Class EXO_PEDCOM
                                     System.IO.Directory.CreateDirectory(sPath)
                                 End If
                                 objGlobal.SBOApp.StatusBar.SetText("(EXO) - Pedido de compra: " & oForm.DataSources.UserDataSources.Item("UDNPED").Value, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
-                                sRutaFicheroPdfCompra = EXO_GLOBALES.GenerarCrystal(objGlobal, sPath, "Pedido_Compra.rpt", sRutaFicheroPdfVenta, oForm.DataSources.UserDataSources.Item("UDPED").Value, oForm.DataSources.UserDataSources.Item("UDNPED").Value, oForm.DataSources.UserDataSources.Item("UDFECH").Value)
+                                sRutaFicheroPdfCompra = EXO_GLOBALES.GenerarCrystal(objGlobal, sPath, "Pedido_Compra.rpt", sRutaFicheroPdfCompra, oForm.DataSources.UserDataSources.Item("UDPED").Value, oForm.DataSources.UserDataSources.Item("UDNPED").Value, oForm.DataSources.UserDataSources.Item("UDFECH").Value)
 
 #End Region
 #Region "Enviamos Mail"
@@ -327,7 +332,7 @@ Public Class EXO_PEDCOM
                                 sSQL &= " SET ""U_EXO_EMAIL""='Y' "
                                 sSQL &= " WHERE ""DocEntry""='" & oDtProveedores.Rows.Item(i).Item("DocEntry").ToString & "' "
                                 objGlobal.refDi.SQL.sqlStringB1(sSQL)
-                                objGlobal.SBOApp.StatusBar.SetText(" Se actualiza el Pedido de compra Nº" & oDtProveedores.Rows.Item(i).Item("DocEntry").ToString & " indicando Enviado.", SAPbouiCOM.BoStatusBarMessageType.smt_Success)
+                                objGlobal.SBOApp.StatusBar.SetText("Se actualiza el Pedido de compra Nº" & oDtProveedores.Rows.Item(i).Item("DocEntry").ToString & " indicando Enviado.", SAPbouiCOM.BoStatusBarMessageType.smt_Success)
 #End Region
 
                             Next

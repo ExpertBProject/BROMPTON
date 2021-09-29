@@ -337,10 +337,10 @@ Public Class EXO_GLOBALES
             smtp.Send(correo)
 
             correo.Dispose()
-            oobjglobal.SBOApp.StatusBar.SetText("Correo enviado a " & sProveedorNom & " con mail: " & dirmail & ", adjuntando fichero:" & sFichero, EXO_Log.EXO_Log.Tipo.informacion)
+            oobjglobal.SBOApp.StatusBar.SetText("Correo enviado a " & sProveedorNom & " con mail: " & dirmail & ", adjuntando ficheros:" & sFichero & ", " & sficheroCompra, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
             Enviarmail = True
         Catch ex As Exception
-            oobjglobal.SBOApp.StatusBar.SetText("No se ha podido envial mail a " & sProveedorNom & " con mail: " & dirmail & ", adjuntando fichero:" & sFichero & ". Error: " & ex.Message, EXO_Log.EXO_Log.Tipo.informacion)
+            oobjglobal.SBOApp.StatusBar.SetText("No se ha podido envial mail a " & sProveedorNom & " con mail: " & dirmail & ", adjuntando ficheros:" & sFichero & ", " & sficheroCompra & ". Error: " & ex.Message, SAPbouiCOM.BoStatusBarMessageType.smt_Error)
             Enviarmail = False
         Finally
         End Try
