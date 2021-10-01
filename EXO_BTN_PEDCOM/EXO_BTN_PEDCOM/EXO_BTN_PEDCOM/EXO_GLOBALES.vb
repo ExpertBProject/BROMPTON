@@ -244,11 +244,12 @@ Public Class EXO_GLOBALES
             EXO_CleanCOM.CLiberaCOM.liberaCOM(CType(oBlob, Object))
         End Try
     End Sub
-    Public Shared Function GenerarCrystal(ByVal oobjglobal As EXO_UIAPI.EXO_UIAPI, ByVal strRutaInforme As String, ByVal sFileCrystal As String, ByVal sPath As String, sDocEntry As String, ByVal sDocNum As String, ByVal sDocDate As String) As String
+    Public Shared Function GenerarCrystal(ByVal oobjglobal As EXO_UIAPI.EXO_UIAPI, ByVal strRutaInforme As String, ByVal sFileCrystal As String,
+                                          ByVal sPath As String, sDocEntry As String, ByVal sDocNum As String, ByVal sDocDate As String, ByVal sTipo As String) As String
         Dim oCRReport As ReportDocument = Nothing
         'objGlobal.SBOApp.StatusBar.SetText("(EXO) - Fecha:" & sDocDate & " - .", SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Warning)
         Dim dFecha As Date = sDocDate
-        Dim sFilePDF As String = sDocNum & "_" & dFecha.Year.ToString("0000") & dFecha.Month.ToString("00") & dFecha.Day.ToString("00")
+        Dim sFilePDF As String = sTipo & "_" & sDocNum '& "_" & dFecha.Year.ToString("0000") & dFecha.Month.ToString("00") & dFecha.Day.ToString("00")
 
 
         'Guardar ficheros 

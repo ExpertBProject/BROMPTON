@@ -200,6 +200,7 @@ Public Class EXO_139
             oForm.DataSources.UserDataSources.Item("UDGRUP").Value = objGlobal.funcionesUI.refDi.OGEN.valorVariable("COM_IMP")
             oForm.DataSources.UserDataSources.Item("UDALM").Value = objGlobal.funcionesUI.refDi.OGEN.valorVariable("COM_ALM")
             oForm.DataSources.UserDataSources.Item("UDARTI").Value = objGlobal.funcionesUI.refDi.OGEN.valorVariable("COM_ART")
+            oForm.DataSources.UserDataSources.Item("UDREF").Value = oFormPed.DataSources.DBDataSources.Item("ORDR").GetValue("U_ECI_RINTC", 0).ToString
 
             'Filtramos los proveedores en el choosfrom list
 #Region "filtro de proveedores"

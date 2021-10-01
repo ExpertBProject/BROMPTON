@@ -206,6 +206,7 @@ Public Class EXO_PEDCOM
                             oDoc.TaxDate = oForm.DataSources.UserDataSources.Item("UDFECH").Value
                             oDoc.Comments = oForm.DataSources.UserDataSources.Item("UDCOM").Value.ToString.Trim
                             oDoc.DocDueDate = oForm.DataSources.UserDataSources.Item("UDFECH").Value
+                            oDoc.NumAtCard = oForm.DataSources.UserDataSources.Item("UDREF").Value
                             oDoc.Lines.ItemCode = oForm.DataSources.UserDataSources.Item("UDARTI").Value
                             oDoc.Lines.Quantity = 1
                             oDoc.Lines.VatGroup = oForm.DataSources.UserDataSources.Item("UDGRUP").Value
@@ -283,7 +284,7 @@ Public Class EXO_PEDCOM
                                     System.IO.Directory.CreateDirectory(sPath)
                                 End If
                                 objGlobal.SBOApp.StatusBar.SetText("(EXO) - Pedido de Venta: " & oRs.Fields.Item("DocNum").Value.ToString, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
-                                sRutaFicheroPdfVenta = EXO_GLOBALES.GenerarCrystal(objGlobal, sPath, "Pedido_Venta.rpt", sRutaFicheroPdfVenta, oRs.Fields.Item("DocEntry").Value.ToString, oRs.Fields.Item("DocNum").Value.ToString, oRs.Fields.Item("DocDate").Value.ToString)
+                                sRutaFicheroPdfVenta = EXO_GLOBALES.GenerarCrystal(objGlobal, sPath, "Pedido_Venta.rpt", sRutaFicheroPdfVenta, oRs.Fields.Item("DocEntry").Value.ToString, oRs.Fields.Item("DocNum").Value.ToString, oRs.Fields.Item("DocDate").Value.ToString, "DN")
                                 oRs.MoveNext()
                             Next
 #End Region
@@ -301,7 +302,7 @@ Public Class EXO_PEDCOM
                                     System.IO.Directory.CreateDirectory(sPath)
                                 End If
                                 objGlobal.SBOApp.StatusBar.SetText("(EXO) - Pedido de compra: " & oForm.DataSources.UserDataSources.Item("UDNPED").Value, SAPbouiCOM.BoMessageTime.bmt_Short, SAPbouiCOM.BoStatusBarMessageType.smt_Success)
-                                sRutaFicheroPdfCompra = EXO_GLOBALES.GenerarCrystal(objGlobal, sPath, "Pedido_Compra.rpt", sRutaFicheroPdfCompra, oForm.DataSources.UserDataSources.Item("UDPED").Value, oForm.DataSources.UserDataSources.Item("UDNPED").Value, oForm.DataSources.UserDataSources.Item("UDFECH").Value)
+                                sRutaFicheroPdfCompra = EXO_GLOBALES.GenerarCrystal(objGlobal, sPath, "Pedido_Compra.rpt", sRutaFicheroPdfCompra, oForm.DataSources.UserDataSources.Item("UDPED").Value, oForm.DataSources.UserDataSources.Item("UDNPED").Value, oForm.DataSources.UserDataSources.Item("UDFECH").Value, "PedidoCompra")
 
 #End Region
 #Region "Enviamos Mail"
