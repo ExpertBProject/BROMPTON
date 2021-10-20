@@ -29,7 +29,7 @@ Public Class Procesos
             oLog.escribeMensaje("Ha conectado con la compañia " & oCompany.CompanyName & ".", EXO_Log.EXO_Log.Tipo.advertencia)
 
             strRutaInforme = My.Application.Info.DirectoryPath.ToString & "\03.RPT\"
-            sSQL = "SELECT DISTINCT T1.""DocEntry"", T4.""CardCode"", T4.""CardName"", T5.""E_MailL"" ""Email"" "
+            sSQL = "SELECT DISTINCT T1.""DocEntry"", T1.""DocNum"", T4.""CardCode"", T4.""CardName"", T5.""E_MailL"" ""Email"" "
             sSQL &= " From ""ORDR"" T1 "
             sSQL &= " LEFT JOIN ""OWOR"" T2 ON T1.""DocEntry""=T2.""OriginAbs"" "
             sSQL &= " INNER JOIN (SELECT T0.""DocEntry"", Case when T0.""U_ECI_FAB"" is null then T1.""CardCode"" else T0.""U_ECI_FAB"" end as ""CodFab""  "
@@ -44,7 +44,9 @@ Public Class Procesos
             If oDtProveedores.Rows.Count > 0 Then
                 For i As Integer = 0 To oDtProveedores.Rows.Count - 1
                     oLog.escribeMensaje("Creando report de Pedidos Al proveedor " & oDtProveedores.Rows.Item(i).Item("CardName").ToString, EXO_Log.EXO_Log.Tipo.advertencia)
-                    sRutaFicheroPdf = GenerarCrystal(strRutaInforme, "Pedido.rpt", sPath, oDtProveedores.Rows.Item(i).Item("DocEntry").ToString, oDtProveedores.Rows.Item(i).Item("CardCode").ToString, oLog)
+                    sRutaFicheroPdf = GenerarCrystal(strRutaInforme, "Pedido.rpt", sPath, oDtProveedores.Rows.Item(i).Item("DocEntry").ToString,
+                                                     oDtProveedores.Rows.Item(i).Item("DocNum").ToString, oDtProveedores.Rows.Item(i).Item("CardCode").ToString,
+                                                     oDtProveedores.Rows.Item(i).Item("CardName").ToString, oLog)
 
                     If sRutaFicheroPdf <> "" Then
                         'Como se ha generado el crystal, procedemos a su envío 
@@ -102,9 +104,10 @@ Public Class Procesos
             Throw ex
         End Try
     End Sub
-    Public Shared Function GenerarCrystal(ByVal strRutaInforme As String, ByVal sFileCrystal As String, ByVal sPath As String, sDocEntry As String, sProveedor As String, ByRef oLog As EXO_Log.EXO_Log) As String
+    Public Shared Function GenerarCrystal(ByVal strRutaInforme As String, ByVal sFileCrystal As String, ByVal sPath As String, sDocEntry As String, sDocNum As String,
+                                          sProveedor As String, ByVal sProveedorNombre As String, ByRef oLog As EXO_Log.EXO_Log) As String
         Dim oCRReport As ReportDocument = Nothing
-        Dim sFilePDF As String = sProveedor & "_" & Now.Year.ToString("0000") & Now.Day.ToString("00") & Now.Month.ToString("00")
+        Dim sFilePDF As String = sProveedorNombre & "_" & sDocNum
 
         sPath = sPath & "\" & Conexiones._sEmpresa & "\ENVIADOS\"
         'Guardar ficheros enviados
