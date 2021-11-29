@@ -179,9 +179,10 @@ Public Class Procesos
         Dim FicheroCab As String = ""
 
         Select Case sProveedor
-            Case "S0012", "S0013" : FicheroCab = sRutahtml & "Mail_TIPO1.htm"
+            Case "S0012" : FicheroCab = sRutahtml & "Mail_TIPO1.htm"
             Case "S0004" : FicheroCab = sRutahtml & "Mail_TIPO2.htm"
             Case "S0359" : FicheroCab = sRutahtml & "Mail_TIPO3.htm"
+            Case "S0013" : FicheroCab = sRutahtml & "Mail_TIPO4.htm"
             Case Else : FicheroCab = sRutahtml & "mail.htm"
         End Select
 
