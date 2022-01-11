@@ -183,6 +183,7 @@ Public Class Procesos
             Case "S0004" : FicheroCab = sRutahtml & "Mail_TIPO2.htm"
             Case "S0359" : FicheroCab = sRutahtml & "Mail_TIPO3.htm"
             Case "S0013" : FicheroCab = sRutahtml & "Mail_TIPO4.htm"
+            Case "S0499" : FicheroCab = sRutahtml & "Mail_TIPO5.htm"
             Case Else : FicheroCab = sRutahtml & "mail.htm"
         End Select
 
