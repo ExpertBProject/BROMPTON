@@ -162,11 +162,15 @@ Public Class Procesos
         If sCMail.Trim <> "" Then
             correo.CC.Add(sCMail.Trim)
         End If
-
         If dirmail <> "" Then
-            'dirmail = "omartinez@expertone.es"
-        correo.To.Add(dirmail)
+            Dim delimitadores() As String = {";", "+", "-", ":"}
+            Dim vectoraux() As String = dirmail.Split(delimitadores, StringSplitOptions.None)
+            For Each item As String In vectoraux
+                correo.To.Add(item)
+            Next
         End If
+
+
         correo.Subject = "Nuevo Pedido Procesado"
 
         If sFichero <> "" Then
