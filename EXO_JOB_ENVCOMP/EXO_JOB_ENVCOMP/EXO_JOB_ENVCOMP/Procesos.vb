@@ -182,14 +182,16 @@ Public Class Procesos
 
         Dim FicheroCab As String = ""
 
-        Select Case sProveedor
-            Case "S0012" : FicheroCab = sRutahtml & "Mail_TIPO1.htm"
-            Case "S0004" : FicheroCab = sRutahtml & "Mail_TIPO2.htm"
-            Case "S0359" : FicheroCab = sRutahtml & "Mail_TIPO3.htm"
-            Case "S0013" : FicheroCab = sRutahtml & "Mail_TIPO4.htm"
-            Case "S0499" : FicheroCab = sRutahtml & "Mail_TIPO5.htm"
-            Case Else : FicheroCab = sRutahtml & "mail.htm"
-        End Select
+        'Select Case sProveedor
+        '    Case "S0012" : FicheroCab = sRutahtml & "Mail_TIPO1.htm"
+        '    Case "S0004" : FicheroCab = sRutahtml & "Mail_TIPO2.htm"
+        '    Case "S0359" : FicheroCab = sRutahtml & "Mail_TIPO3.htm"
+        '    Case "S0013" : FicheroCab = sRutahtml & "Mail_TIPO4.htm"
+        '    Case "S0499" : FicheroCab = sRutahtml & "Mail_TIPO5.htm"
+        '    Case Else : FicheroCab = sRutahtml & "mail.htm"
+        'End Select
+
+        FicheroCab = sRutahtml & "mail.htm"
 
         Dim srCAB As StreamReader = New StreamReader(FicheroCab)
 
