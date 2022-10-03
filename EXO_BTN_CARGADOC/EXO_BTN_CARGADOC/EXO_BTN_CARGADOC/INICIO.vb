@@ -482,6 +482,9 @@ Public Class INICIO
                     Case "EXO-MnCVPed"
                         Clase = New EXO_CVPED(objGlobal)
                         Return CType(Clase, EXO_CVPED).SBOApp_MenuEvent(infoEvento)
+                    Case "EXO-MnFPPDTE"
+                        Clase = New EXO_VPFAC(objGlobal)
+                        Return CType(Clase, EXO_VPFAC).SBOApp_MenuEvent(infoEvento)
                 End Select
             End If
 
@@ -509,6 +512,9 @@ Public Class INICIO
                 Case "EXO_CVPED"
                     Clase = New EXO_CVPED(objGlobal)
                     Return CType(Clase, EXO_CVPED).SBOApp_ItemEvent(infoEvento)
+                Case "EXO_VPFAC"
+                    Clase = New EXO_VPFAC(objGlobal)
+                    Return CType(Clase, EXO_VPFAC).SBOApp_ItemEvent(infoEvento)
             End Select
 
             Return MyBase.SBOApp_ItemEvent(infoEvento)

@@ -241,7 +241,7 @@ Public Class EXO_CVPED
                     If objGlobal.SBOApp.MessageBox("¿Está seguro que quiere generar los Documentos seleccionados?", 1, "Sí", "No") = 1 Then
                         If ComprobarDOC(oForm, "DT_DOC") = True Then
                             oForm.Items.Item("btn_Carga").Enabled = False
-                            'Generamos facturas
+                            'Generamos Documentos
                             objGlobal.SBOApp.StatusBar.SetText("Creando Documentos ... Espere por favor.", SAPbouiCOM.BoMessageTime.bmt_Long, SAPbouiCOM.BoStatusBarMessageType.smt_Warning)
                             oForm.Freeze(True)
                             If EXO_GLOBALES.CrearDocumentos(oForm, "DT_DOC", "PEDIDO", objGlobal.compañia, objGlobal.SBOApp, objGlobal) = False Then
@@ -308,8 +308,10 @@ Public Class EXO_CVPED
             EventHandler_ItemPressed_After = True
 
         Catch exCOM As System.Runtime.InteropServices.COMException
+            oForm.Freeze(False)
             Throw exCOM
         Catch ex As Exception
+            oForm.Freeze(False)
             Throw ex
         Finally
             oForm.Freeze(False)

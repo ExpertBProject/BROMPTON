@@ -117,6 +117,7 @@
     <Compile Include="EXO_CVPED.vb" />
     <Compile Include="EXO_FCCNF.vb" />
     <Compile Include="EXO_GLOBALES.vb" />
+    <Compile Include="EXO_VPFAC.vb" />
     <Compile Include="INICIO.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
@@ -177,10 +178,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="XML_FORMS\EXO_CVENT.srf" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="XML_FORMS\EXO_CCPED.srf" />
     <EmbeddedResource Include="XML_FORMS\EXO_CVPED.srf" />
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +202,9 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="XML_FORMS\EXO_VPFAC.srf" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
