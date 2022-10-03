@@ -1,0 +1,16 @@
+﻿<Application>
+  <Menus>
+    <action type="add">
+      <Menu Checked="0" Enabled="1" FatherUID="43520" Image="" String="Carga Documentos" Type="2" UniqueID="EXO-MnCDoc"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="EXO-MnCDoc" Image="" String="Parametrización" Type="2" UniqueID="EXO-MnCDocP"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="EXO-MnCDocP" Image="" String="Campos SAP" Type="1" UniqueID="EXO-MnCSAP"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="EXO-MnCDocP" Image="" String="Configurador" Type="1" UniqueID="EXO-MnCFCF"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="EXO-MnCDoc" Image="" String="Documentos a cargar" Type="2" UniqueID="EXO-MnCDocC"></Menu>
+           <Menu Checked="0" Enabled="1" FatherUID="EXO-MnCDocC" Image="" String="Ventas" Type="2" UniqueID="EXO-MnCDocCV"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="EXO-MnCDocCV" Image="" String="Pedidos" Type="1" UniqueID="EXO-MnCVPed"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="2048" Image="" String="" Type="3" UniqueID="EXO-MnFSEP1"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="2048" Image="" String="Facturar Pedidos Pdtes." Type="1" UniqueID="EXO-MnFPPDTE"></Menu>
+      <Menu Checked="0" Enabled="1" FatherUID="2048" Image="" String="" Type="3" UniqueID="EXO-MnFSEP2"></Menu>
+    </action>
+  </Menus>
+</Application>
